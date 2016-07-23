@@ -1,16 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyShedule", "MyShedule\MyShedule.csproj", "{85738660-15FF-414F-BE9C-6B3EDE72B0A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestShedule", "TestShedule\TestShedule.csproj", "{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}"
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = MyShedule.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -30,11 +27,30 @@ Global
 		{85738660-15FF-414F-BE9C-6B3EDE72B0A9}.Release|Mixed Platforms.Build.0 = Release|x86
 		{85738660-15FF-414F-BE9C-6B3EDE72B0A9}.Release|x86.ActiveCfg = Release|x86
 		{85738660-15FF-414F-BE9C-6B3EDE72B0A9}.Release|x86.Build.0 = Release|x86
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Debug|x86.Build.0 = Debug|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|x86.ActiveCfg = Release|Any CPU
+		{7583BD18-2C35-4E7D-8858-0CA0BD3E7A03}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		ObjectiFSystem = C:\objectiF Systems\SheduleObj1
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = MyShedule.vsmdi
 	EndGlobalSection
 EndGlobal

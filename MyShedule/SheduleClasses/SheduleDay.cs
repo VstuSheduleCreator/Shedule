@@ -147,6 +147,8 @@ namespace MyShedule
         /// <summary> количетсво пар в этот день не может превышать этого количества </summary>
         public int MaxPossibleCountLessons { get { return _maxPossibleCountLessons; } }
 
+
+        // Todo: Убрать ".,"сле последней даты
         /// <summary> строка со списком календарных дат дня в формате {0:dd}.{0:MM} </summary>
         public string DatesDescription
         {

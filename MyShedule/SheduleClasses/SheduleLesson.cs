@@ -131,9 +131,9 @@ namespace MyShedule
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teaher, string discipline, IEnumerable<string> groups, LessonType type)
+        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type)
         {
-            Teacher = teaher;
+            Teacher = teacher;
 
             Discipline = discipline;
 
@@ -143,29 +143,18 @@ namespace MyShedule
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teaher, string discipline, IEnumerable<string> groups, LessonType type, IEnumerable<DateTime> dates)
+        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type, IEnumerable<DateTime> dates)
         {
             Dates = dates.ToList();
 
-            UpdateFields(teaher, discipline, groups.ToList(), type);
+            UpdateFields(teacher, discipline, groups.ToList(), type);
         }
 
         public bool IsEqual(SheduleLesson item)
         {
             return this.Teacher == item.Teacher && this.Discipline == item.Discipline &&
-                this.Room == item.Room && this.Type == item.Type;// && this.Groups == item.Groups;
+                this.Room == item.Room && this.Type == item.Type;
         }
-
-        //public static bool operator ==(SheduleLesson item1, SheduleLesson item2)
-        //{
-        //    return item1.Teacher == item2.Teacher && item1.Discipline == item2.Discipline &&
-        //        item1.Room == item2.Room && item1.Type == item2.Type && item1.Groups == item2.Groups;
-        //}
-
-        //public static bool operator !=(SheduleLesson item1, SheduleLesson item2)
-        //{
-        //    return !(item1 == item2);
-        //}
 
         /// <summary> Строка со списком групп через запятую у которых провидится занятие </summary>
         public string GroupsDescription

@@ -46,7 +46,7 @@ namespace MyShedule
             DateTime TempDate = FirstDaySem;
             DateTime DateCounter = FirstDaySem;
 
-            for (int week = 1; week <= (Setting.CountWeeksShedule + 2); week++)
+            for (int week = 1; week <=4 || week <= (Setting.CountWeeksShedule + 2); week++)
             {
                 TempDate = DateCounter;
 

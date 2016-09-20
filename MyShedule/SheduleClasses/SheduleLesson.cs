@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -57,10 +56,10 @@ namespace MyShedule
         }
 
         public SheduleLesson(SheduleTime time, string room, IEnumerable<DateTime> dates, 
-            string teaher, string discipline, IEnumerable<string> groups, LessonType type)
+            string teacher, string discipline, IEnumerable<string> groups, LessonType type)
         {
             //main atributtes
-            Teacher = teaher;
+            Teacher = teacher;
             Discipline = discipline;
             Groups = groups.ToList();
             Room = room;
@@ -125,6 +124,7 @@ namespace MyShedule
 
             Discipline = String.Empty;
 
+            // TODO: сделать приватным и запретить создавать одинковые группы
             Groups = new List<string>();
 
             Type = LessonType.Lection;
@@ -163,7 +163,7 @@ namespace MyShedule
             {
                 string value = String.Empty;
                 foreach (string group in Groups)
-                    value += Groups.Last() == group ? group : group + ',';
+                    value += Groups.Last() == group ? group : group + ", ";
 
                 return value;
             }
@@ -174,11 +174,15 @@ namespace MyShedule
         {
             get
             {
-                string DatesLine = String.Empty;
+                string datesLine = String.Empty;
                 foreach (DateTime dt in Dates)
-                    DatesLine += String.Format("{0:dd}.{0:MM}., ", dt);
+                {
+                    datesLine += String.Format("{0:dd}.{0:MM}", dt);
+                    // TODO: скорее здесль лучше использовать обычный if
+                    datesLine += Dates.Last() != dt ? ", " : "";
+                }
 
-                return DatesLine;
+                return datesLine;
             }
         }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -57,10 +56,10 @@ namespace MyShedule
         }
 
         public SheduleLesson(SheduleTime time, string room, IEnumerable<DateTime> dates, 
-            string teaher, string discipline, IEnumerable<string> groups, LessonType type)
+            string teacher, string discipline, IEnumerable<string> groups, LessonType type)
         {
             //main atributtes
-            Teacher = teaher;
+            Teacher = teacher;
             Discipline = discipline;
             Groups = groups.ToList();
             Room = room;
@@ -125,15 +124,16 @@ namespace MyShedule
 
             Discipline = String.Empty;
 
+            // TODO: сделать приватным и запретить создавать одинковые группы
             Groups = new List<string>();
 
             Type = LessonType.Lection;
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teaher, string discipline, IEnumerable<string> groups, LessonType type)
+        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type)
         {
-            Teacher = teaher;
+            Teacher = teacher;
 
             Discipline = discipline;
 
@@ -143,29 +143,18 @@ namespace MyShedule
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teaher, string discipline, IEnumerable<string> groups, LessonType type, IEnumerable<DateTime> dates)
+        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type, IEnumerable<DateTime> dates)
         {
             Dates = dates.ToList();
 
-            UpdateFields(teaher, discipline, groups.ToList(), type);
+            UpdateFields(teacher, discipline, groups.ToList(), type);
         }
 
         public bool IsEqual(SheduleLesson item)
         {
             return this.Teacher == item.Teacher && this.Discipline == item.Discipline &&
-                this.Room == item.Room && this.Type == item.Type;// && this.Groups == item.Groups;
+                this.Room == item.Room && this.Type == item.Type;
         }
-
-        //public static bool operator ==(SheduleLesson item1, SheduleLesson item2)
-        //{
-        //    return item1.Teacher == item2.Teacher && item1.Discipline == item2.Discipline &&
-        //        item1.Room == item2.Room && item1.Type == item2.Type && item1.Groups == item2.Groups;
-        //}
-
-        //public static bool operator !=(SheduleLesson item1, SheduleLesson item2)
-        //{
-        //    return !(item1 == item2);
-        //}
 
         /// <summary> Строка со списком групп через запятую у которых провидится занятие </summary>
         public string GroupsDescription
@@ -174,7 +163,7 @@ namespace MyShedule
             {
                 string value = String.Empty;
                 foreach (string group in Groups)
-                    value += Groups.Last() == group ? group : group + ',';
+                    value += Groups.Last() == group ? group : group + ", ";
 
                 return value;
             }
@@ -185,11 +174,15 @@ namespace MyShedule
         {
             get
             {
-                string DatesLine = String.Empty;
+                string datesLine = String.Empty;
                 foreach (DateTime dt in Dates)
-                    DatesLine += String.Format("{0:dd}.{0:MM}., ", dt);
+                {
+                    datesLine += String.Format("{0:dd}.{0:MM}", dt);
+                    // TODO: скорее здесль лучше использовать обычный if
+                    datesLine += Dates.Last() != dt ? ", " : "";
+                }
 
-                return DatesLine;
+                return datesLine;
             }
         }
 

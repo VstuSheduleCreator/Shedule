@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 
@@ -46,7 +47,7 @@ namespace MyShedule
             DateTime TempDate = FirstDaySem;
             DateTime DateCounter = FirstDaySem;
 
-            for (int week = 1; week <= (Setting.CountWeeksShedule + 2); week++)
+            for (int week = 1; week <=4 || week <= (Setting.CountWeeksShedule + 2); week++)
             {
                 TempDate = DateCounter;
 
@@ -88,6 +89,7 @@ namespace MyShedule
             return query.Count() > 0 ? query.First() : null;
         }
 
+        // Todo: этот метод скорее должен быть статическим, а может его вообще быть не должно..
         /// <summary> Найти расписание занятия из списка занятий</summary>
         public SheduleLesson FindLessonInList(IEnumerable<SheduleLesson> items, SheduleTime time) {
             IEnumerable<SheduleLesson> query = items.Where(x => x.Time == time);
@@ -95,11 +97,19 @@ namespace MyShedule
         }
 
         /// <summary> Получить расписание определенного дня </summary>
-        public SheduleDay GetDay(Week week, Day day) { return Days.Single(e => e.Week == week && e.Day == day); }
+        public SheduleDay GetDay(Week week, Day day)
+        {
+            IEnumerable<SheduleDay> query = Days.Where(x => x.Week == week && x.Day == day);
+            return query.Count() > 0 ? query.First() : null;
+        }
         public SheduleDay GetDay(SheduleTime time)   { return GetDay(time.Week, time.Day); }
 
         /// <summary> Получить все занятия определенного дня </summary>
-        public IEnumerable<SheduleLesson> GetLessonsOfDay(Week week, Day day) { return Days.Single(e => e.Week == week && e.Day == day).Lessons; } 
+        public IEnumerable<SheduleLesson> GetLessonsOfDay(Week week, Day day) 
+        {
+            IEnumerable<SheduleDay> query = Days.Where(x => x.Week == week && x.Day == day);
+            return query.Count() > 0 ? query.First().Lessons : null;
+        }
         public IEnumerable<SheduleLesson> GetLessonsOfDay(SheduleDay day)     { return GetLessonsOfDay(day.Week, day.Day); }
         
 

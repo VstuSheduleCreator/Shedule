@@ -120,7 +120,7 @@ namespace MyShedule
 
         /// <summary> получить количество занятий у определенной группы в этот день </summary>
         public int CountLessonsGroup(string nameGroup, Week week, Day day) {
-            return (from x in Lessons from grp in x.Groups where !x.IsEmpty && grp == nameGroup && x.Week == week && x.Day == day select x).Count();
+            return (from x in NonEmptyLessons from grp in x.Groups where !x.IsEmpty && grp == nameGroup && x.Week == week && x.Day == day select x).Count();
         }
 
         /// <summary> проверить не будет переполнен день если добавить одно занятие </summary>
@@ -155,7 +155,11 @@ namespace MyShedule
             get {
                 string datesLine = String.Empty;
                 foreach (DateTime dt in Dates)
-                    datesLine += String.Format("{0:dd}.{0:MM}., ", dt);
+                {
+                    datesLine += String.Format("{0:dd}.{0:MM}", dt);
+                    // TODO: скорее здесль лучше использовать обычный if 
+                    datesLine += Dates.Last() != dt ? ", " : "";
+                }
 
                 return datesLine;
             }

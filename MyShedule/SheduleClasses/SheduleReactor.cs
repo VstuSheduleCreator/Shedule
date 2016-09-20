@@ -97,6 +97,7 @@ namespace MyShedule
         }
 
         //отсортировать недели по наименьшей загруженности
+        // TODO: возможно превратить в гетер
         private IEnumerable<WeekInfo> GetSortedWeeksByCountLessons(SheduleWeeks shedule)
         {
             return (from day in shedule.Days

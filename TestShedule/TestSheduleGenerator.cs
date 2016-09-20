@@ -1,70 +1,127 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MyShedule;
 
 namespace TestShedule
 {
-    /// <summary>
-    /// Summary description for TestSheduleGenerator
-    /// </summary>
     [TestClass]
-    public class TestSheduleGenerator
+    public class TestSheduleGeerator
     {
-        public TestSheduleGenerator()
+
+        private SheduleGenerator getValidGenerator()
         {
-            //
-            // TODO: Add constructor logic here
-            //
+            SheduleGenerator validGenerator;
+
+            EducationLoadAdapter adapter = new EducationLoadAdapter();
+
+            List<SheduleRoom> rooms = new List<SheduleRoom>();
+
+            SettingShedule setting = new SettingShedule();
+
+            DateTime firstDaySem = new DateTime();
+
+            Employments employments = new Employments();
+
+            dsShedule sheduleDataSet = new dsShedule();
+            string filename = @"../../fixtures/Нагрузка.xml";
+            sheduleDataSet.Education.ReadXml(filename);
+            adapter = new EducationLoadAdapter(DictionaryConverter.EducationToList(sheduleDataSet));
+
+            filename = @"../../fixtures/Аудитории.xml";
+            sheduleDataSet.Room.ReadXml(filename);
+            rooms = DictionaryConverter.RoomsToList(sheduleDataSet);
+
+            validGenerator = new SheduleGenerator(adapter, rooms, setting, firstDaySem, employments);
+
+            return validGenerator;
         }
 
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
+        private SheduleGenerator generator;
 
         [TestMethod]
-        public void TestMethod1()
+        public void TestGenerate()
         {
-            //
-            // TODO: Add test logic here
-            //
+            SheduleWeeks shedule;
+
+            generator = getValidGenerator();
+            shedule = generator.Generate();
+
+            Assert.AreEqual(shedule.Rooms.Count,8);
+            Assert.AreEqual(generator.Results.Count(), 9);
+        }
+
+        [TestMethod]
+        public void TestGenerateWithoutLoad() {
+            SheduleWeeks shedule;
+
+            generator = getValidGenerator();
+
+            dsShedule sheduleDataSet = new dsShedule();
+            string filename = @"../../fixtures/EmptyLoad.xml";
+            sheduleDataSet.Education.ReadXml(filename);
+            generator.LoadItemsAdapter = new EducationLoadAdapter(DictionaryConverter.EducationToList(sheduleDataSet));
+
+
+            shedule = generator.Generate();
+
+            Assert.AreEqual(shedule.Rooms.Count, 8);
+            Assert.AreEqual(generator.Results.Count(), 0);
+        }
+
+        [TestMethod]
+        public void TestGenerateWithOnlyLab() {
+            SheduleWeeks shedule;
+
+            generator = getValidGenerator();
+
+            dsShedule sheduleDataSet = new dsShedule();
+            string filename = @"../../fixtures/OnlyLabLoad.xml";
+            sheduleDataSet.Education.ReadXml(filename);
+            generator.LoadItemsAdapter = new EducationLoadAdapter(DictionaryConverter.EducationToList(sheduleDataSet));
+
+
+            shedule = generator.Generate();
+
+            Assert.AreEqual(shedule.Rooms.Count, 8);
+            Assert.AreEqual(generator.Results.Count(), 3);
+        }
+
+        [TestMethod]
+        public void TestGenerateWithOnlyPractice() {
+            SheduleWeeks shedule;
+
+            generator = getValidGenerator();
+
+            dsShedule sheduleDataSet = new dsShedule();
+            string filename = @"../../fixtures/OnlyPracticeLoad.xml";
+            sheduleDataSet.Education.ReadXml(filename);
+            generator.LoadItemsAdapter = new EducationLoadAdapter(DictionaryConverter.EducationToList(sheduleDataSet));
+
+
+            shedule = generator.Generate();
+
+            Assert.AreEqual(shedule.Rooms.Count, 8);
+            Assert.AreEqual(generator.Results.Count(), 3);
+        }
+
+        [TestMethod]
+        public void TestGenerateWithOnlyOneLection() {
+            SheduleWeeks shedule;
+
+            generator = getValidGenerator();
+
+            dsShedule sheduleDataSet = new dsShedule();
+            string filename = @"../../fixtures/OnlyOneLectionLoad.xml";
+            sheduleDataSet.Education.ReadXml(filename);
+            generator.LoadItemsAdapter = new EducationLoadAdapter(DictionaryConverter.EducationToList(sheduleDataSet));
+
+
+            shedule = generator.Generate();
+
+            Assert.AreEqual(shedule.Rooms.Count, 8);
+            Assert.AreEqual(generator.Results.Count(), 1);
         }
     }
 }

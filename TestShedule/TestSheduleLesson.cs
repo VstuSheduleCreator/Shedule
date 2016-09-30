@@ -25,6 +25,21 @@ namespace TestShedule
         }
 
         [TestMethod]
+        public void TestCopy()
+        {
+            lesson = getSheduleLesson();
+            SheduleLesson lesson2 = lesson.Copy();
+
+            Assert.AreEqual(lesson.Time, lesson2.Time);
+            Assert.AreEqual(lesson.Teacher, lesson2.Teacher);
+            Assert.AreEqual(lesson.Discipline, lesson2.Discipline);
+            Assert.AreEqual(lesson.Type, lesson2.Type);
+            Assert.AreEqual(lesson.Room, lesson2.Room);
+            CollectionAssert.AreEqual(lesson.Groups, lesson2.Groups);
+            CollectionAssert.AreEqual(lesson.Dates, lesson2.Dates);
+        }
+
+        [TestMethod]
         public void TestIsEmpty() {
             Assert.AreEqual(lesson.IsEmpty, true);
         }
@@ -45,12 +60,14 @@ namespace TestShedule
         public void TestUpdateFields()
         {
             lesson = getSheduleLesson();
-            lesson.UpdateFields("Андреев А.Е", "Основы ЭВМ", new List<string> {"ИВТ-260"}, LessonType.Labwork);
+            List<DateTime> dates = new List<DateTime>() {new DateTime(2016, 9, 17)};
+            lesson.UpdateFields("Андреев А.Е", "Основы ЭВМ", new List<string> {"ИВТ-260"}, LessonType.Labwork, dates);
 
             Assert.AreEqual(lesson.Teacher, "Андреев А.Е");
             Assert.AreEqual(lesson.Discipline, "Основы ЭВМ");
             Assert.AreEqual(lesson.Groups.Count, 1);
             Assert.AreEqual(lesson.Type, LessonType.Labwork);
+            CollectionAssert.AreEqual(lesson.Dates, dates);
         }
 
         [TestMethod]
@@ -130,7 +147,7 @@ namespace TestShedule
         [TestMethod]
         public void TestWrapSheduleRoom() {
             lesson = getSheduleLesson();
-            Assert.AreEqual(lesson.WrapSheduleRoom, "Андреев А.Е.\nИВТ-260, ИВТ-261\nЛекция\nВ-404\nОсновы ЭВМ");
+            Assert.AreEqual(lesson.WrapSheduleRoom, "Андреев А.Е.\nИВТ-260, ИВТ-261\nЛекция\nОсновы ЭВМ");
         }
     }
 }

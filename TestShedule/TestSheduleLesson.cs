@@ -60,12 +60,14 @@ namespace TestShedule
         public void TestUpdateFields()
         {
             lesson = getSheduleLesson();
-            lesson.UpdateFields("Андреев А.Е", "Основы ЭВМ", new List<string> {"ИВТ-260"}, LessonType.Labwork);
+            List<DateTime> dates = new List<DateTime>() {new DateTime(2016, 9, 17)};
+            lesson.UpdateFields("Андреев А.Е", "Основы ЭВМ", new List<string> {"ИВТ-260"}, LessonType.Labwork, dates);
 
             Assert.AreEqual(lesson.Teacher, "Андреев А.Е");
             Assert.AreEqual(lesson.Discipline, "Основы ЭВМ");
             Assert.AreEqual(lesson.Groups.Count, 1);
             Assert.AreEqual(lesson.Type, LessonType.Labwork);
+            CollectionAssert.AreEqual(lesson.Dates, dates);
         }
 
         [TestMethod]

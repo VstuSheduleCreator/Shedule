@@ -188,30 +188,22 @@ namespace MyShedule
 
         /// <summary> Расписание на один день для группы </summary>
         public string WrapSheduleGroup {
-            get { return Discipline + Environment.NewLine + SheduleLessonType.Description(Type) + 
-                Environment.NewLine + Teacher + Environment.NewLine + Room;
-            }
+            get { return $"{Discipline}\n{SheduleLessonType.Description(Type)}\n{Teacher}\n{Room}"; }
         }
 
         /// <summary> Расписание на один день для преподавателя </summary>
         public string WrapSheduleTeacher {
-            get { return Discipline + Environment.NewLine + GroupsDescription + Environment.NewLine + 
-                    SheduleLessonType.Description(Type) + Environment.NewLine + Room;
-            }
+            get { return $"{Discipline}\n{GroupsDescription}\n{SheduleLessonType.Description(Type)}\n{Room}"; }
         }
 
         /// <summary> Расписание на один день для дисциплины </summary>
         public string WrapSheduleDiscipline {
-            get { return Teacher + Environment.NewLine + GroupsDescription + Environment.NewLine + 
-                    SheduleLessonType.Description(Type) + Environment.NewLine + Room;
-            }
+            get { return $"{Teacher}\n{GroupsDescription}\n{SheduleLessonType.Description(Type)}\n{Room}"; }
         }
 
         /// <summary> Расписание на один день для аудитории </summary>
         public string WrapSheduleRoom {
-            get { return Teacher + Environment.NewLine + GroupsDescription + Environment.NewLine + 
-                    SheduleLessonType.Description(Type) + Environment.NewLine + Discipline;
-            }
+            get { return $"{Teacher}\n{GroupsDescription}\n{SheduleLessonType.Description(Type)}\n{Discipline}"; }
         }
     }
 }

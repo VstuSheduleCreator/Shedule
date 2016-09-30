@@ -147,7 +147,7 @@ namespace TestShedule
         [TestMethod]
         public void TestWrapSheduleRoom() {
             lesson = getSheduleLesson();
-            Assert.AreEqual(lesson.WrapSheduleRoom, "Андреев А.Е.\nИВТ-260, ИВТ-261\nЛекция\nВ-404\nОсновы ЭВМ");
+            Assert.AreEqual(lesson.WrapSheduleRoom, "Андреев А.Е.\nИВТ-260, ИВТ-261\nЛекция\nОсновы ЭВМ");
         }
     }
 }

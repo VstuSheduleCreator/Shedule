@@ -25,6 +25,21 @@ namespace TestShedule
         }
 
         [TestMethod]
+        public void TestCopy()
+        {
+            lesson = getSheduleLesson();
+            SheduleLesson lesson2 = lesson.Copy();
+
+            Assert.AreEqual(lesson.Time, lesson2.Time);
+            Assert.AreEqual(lesson.Teacher, lesson2.Teacher);
+            Assert.AreEqual(lesson.Discipline, lesson2.Discipline);
+            Assert.AreEqual(lesson.Type, lesson2.Type);
+            Assert.AreEqual(lesson.Room, lesson2.Room);
+            CollectionAssert.AreEqual(lesson.Groups, lesson2.Groups);
+            CollectionAssert.AreEqual(lesson.Dates, lesson2.Dates);
+        }
+
+        [TestMethod]
         public void TestIsEmpty() {
             Assert.AreEqual(lesson.IsEmpty, true);
         }

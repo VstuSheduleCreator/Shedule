@@ -75,6 +75,14 @@ namespace TestShedule {
         }
 
         [TestMethod]
+        public void MaxCountLessonsOfWeekDayAllowed() {
+            setting = get_valid_setting();
+            setting.CountLessonsOfDay = 5;
+            setting.MaxCountLessonsOfWeekDay = 5;
+            Assert.AreEqual(setting.MaxCountLessonsOfWeekDay, setting.CountLessonsOfDay);
+        }
+
+        [TestMethod]
         public void MaxCountLessonsOfWeekDayLargerAllowed() {
             setting = get_valid_setting();
             setting.CountLessonsOfDay = 5;
@@ -90,18 +98,26 @@ namespace TestShedule {
         }
 
         [TestMethod]
+        public void MaxCountLessonsOfWeekEndAllowed() {
+            setting = get_valid_setting();
+            setting.CountLessonsOfDay = 5;
+            setting.MaxCountLessonsOfWeekEnd = 5;
+            Assert.AreEqual(setting.MaxCountLessonsOfWeekEnd, setting.CountLessonsOfDay);
+        }
+
+        [TestMethod]
         public void MaxCountLessonsOfWeekEndLargerAllowed() {
             setting = get_valid_setting();
             setting.CountLessonsOfDay = 5;
-            setting.MaxCountLessonsOfWeekDay = 6;
-            Assert.AreEqual(setting.MaxCountLessonsOfWeekDay, setting.CountLessonsOfDay);
+            setting.MaxCountLessonsOfWeekEnd = 6;
+            Assert.AreEqual(setting.MaxCountLessonsOfWeekEnd, setting.CountLessonsOfDay);
         }
 
         [TestMethod]
         public void MaxCountLessonsOfWeekEndLessAllowed() {
             setting = get_valid_setting();
-            setting.MaxCountLessonsOfWeekDay = 0;
-            Assert.AreEqual(setting.MaxCountLessonsOfWeekDay, 1);
+            setting.MaxCountLessonsOfWeekEnd = 0;
+            Assert.AreEqual(setting.MaxCountLessonsOfWeekEnd, 1);
         }
 
     }

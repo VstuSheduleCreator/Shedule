@@ -161,7 +161,7 @@
                 {
                     _maxCountLessonsOfWeekDay = 1;
                 }
-                else if(value > _countLessonsOfDay)
+                else 
                 {
                     _maxCountLessonsOfWeekDay = _countLessonsOfDay;
                 }
@@ -185,7 +185,7 @@
                 {
                     _maxCountLessonsOfWeekEnd = 1;
                 }
-                else if(value > _countLessonsOfDay)
+                else 
                 {
                     _maxCountLessonsOfWeekEnd = _countLessonsOfDay;
                 }

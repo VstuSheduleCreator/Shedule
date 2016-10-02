@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MyShedule
 {
     [Serializable]
     public class SheduleTime
     {
+
+        #region Constructors SheduleTime
+
         public SheduleTime()
         {
-            Week = MyShedule.Week.Another;
-            Day = MyShedule.Day.Another;
+            Week = Week.Another;
+            Day = Day.Another;
             Hour = 0;
         }
 
@@ -22,15 +22,25 @@ namespace MyShedule
             Hour = hour;
         }
 
+        #endregion
+
+        #region Fields SheduleTime
+
+        private Week _week;
+
+        private Day _day;
+
+        private int _hour;
+
         public Week Week
         {
             get
             {
-                return _Week;
+                return _week;
             }
             set
             {
-                _Week = value;
+                _week = value;
             }
 
         }
@@ -39,21 +49,19 @@ namespace MyShedule
         {
             get
             {
-                return (int)_Week;
+                return (int)_week;
             }
         }
-
-        private Week _Week = new Week();
 
         public Day Day
         {
             get
             {
-                return _Day;
+                return _day;
             }
             set
             {
-                _Day = value;
+                _day = value;
             }
         }
 
@@ -61,30 +69,30 @@ namespace MyShedule
         {
             get
             {
-                return (int)_Day;
+                return (int)_day;
             }
         }
-
-        private Day _Day = new Day();
 
         // Номер пары
         public int Hour
         {
             get
             {
-                return _Hour;
+                return _hour;
             }
             set
             {
                 // В день не может быть больше 8-ми пар
-                // надо будет Exception поставить в будущем
-                //SheduleSettings stg = new SheduleSettings();
-                //_Hour = (value >= 1 && value <= stg.CountLessonsOfDay) ? value : 0;
-                _Hour = value;
+                // Возможно нужно будет поменять на 0 < value
+                // Сейчас hour == 0 обозначает неизвестный час
+                if (0 <= value && value < 9)
+                    _hour = value;
+                else
+                    throw new ArgumentOutOfRangeException("_Hour", "В день не может быть больше 8-ми пар");
             }
         }
 
-        private int _Hour;
+        #endregion
 
         public SheduleTime Copy()
         {
@@ -98,15 +106,18 @@ namespace MyShedule
             return Equals((SheduleTime)obj); 
         }
 
-        public override int GetHashCode()
-        {
-            return WeekNumber*DayNumber*Hour;
-        }
+        // TODO: разобраться зачем нужен этот метод(скорее всего он и не нужен)
+        //public override int GetHashCode()
+        //{
+        //    return WeekNumber*DayNumber*Hour;
+        //}
 
         public bool Equals(SheduleTime other) 
         {
             return Week == other.Week && Day == other.Day && Hour == other.Hour;
         }
+
+        #region Compare methods SheduleTime
 
         public static bool operator ==(SheduleTime time1, SheduleTime time2)
         {
@@ -122,44 +133,19 @@ namespace MyShedule
         {
             if (time1.WeekNumber > time2.WeekNumber)
                 return true;
-            else if (time1.WeekNumber < time2.WeekNumber)
-                return false;
-            else
-            {
-                if (time1.DayNumber > time2.DayNumber)
-                    return true;
-                else if (time1.DayNumber < time2.DayNumber)
-                    return false;
-                {
-                    if (time1.Hour > time2.Hour)
-                        return true;
-                    else if (time1.Hour < time2.Hour)
-                        return false;
-                    else return false;
-                }
-            }
+            if (time1.WeekNumber == time2.WeekNumber &&
+                time1.DayNumber > time2.WeekNumber)
+                return true;
+            if(time1.WeekNumber == time2.WeekNumber &&
+                time1.DayNumber == time2.WeekNumber &&
+                time1.Hour > time2.Hour)
+                return true;
+            return false;
         }
 
         public static bool operator >=(SheduleTime time1, SheduleTime time2)
         {
-            if (time1.WeekNumber > time2.WeekNumber)
-                return true;
-            else if (time1.WeekNumber < time2.WeekNumber)
-                return false;
-            else
-            {
-                if (time1.DayNumber > time2.DayNumber)
-                    return true;
-                else if (time1.DayNumber < time2.DayNumber)
-                    return false;
-                {
-                    if (time1.Hour > time2.Hour)
-                        return true;
-                    else if (time1.Hour < time2.Hour)
-                        return false;
-                    else return true;
-                }
-            }
+            return time1 > time2 || time1 == time2;
         }
 
         public static bool operator <(SheduleTime time1, SheduleTime time2)
@@ -172,12 +158,16 @@ namespace MyShedule
             return !(time1 > time2);
         }
 
+        #endregion
+
+        #region Description fields SheduleTime
+
         // Вернуть текстовое описания номера занятия
         public string HourDescription
         {
             get
             {
-                return GetHourDiscription(_Hour);
+                return GetHourDiscription(_hour);
             }
         }
 
@@ -185,7 +175,7 @@ namespace MyShedule
         {
             get
             {
-                return GetWeekDescription(_Week);
+                return GetWeekDescription(_week);
             }
         }
 
@@ -193,7 +183,7 @@ namespace MyShedule
         {
             get
             {
-                return GetDayDescription(_Day);
+                return GetDayDescription(_day);
             }
         }
 
@@ -201,9 +191,13 @@ namespace MyShedule
         {
             get
             {
-                return WeekDescription + ' ' + DayDescription + ' ' + HourDescription;
+                return GetDescription(this);
             }
         }
+
+        #endregion
+
+        #region static methods description SheduleTime
 
         public static string GetDescription(SheduleTime time)
         {
@@ -212,7 +206,8 @@ namespace MyShedule
 
         public static string GetWeekDescription(Week week)
         {
-            string message = string.Empty;
+            string message;
+            // TODO: заменить switch функцией(возможно)
             switch (week)
             {
                 case Week.FirstWeek: message = "Неделя I"; break;
@@ -225,9 +220,10 @@ namespace MyShedule
         }
 
         // Вернуть текстовое описания номера занятия
-        public static string GetHourDiscription(int Hour)
+        public static string GetHourDiscription(int hour)
         {
-            switch (Hour)
+            // TODO: заменить switch функцией(возможно)
+            switch(hour)
             {
                 case 1: return "1-2";
                 case 2: return "3-4";
@@ -243,8 +239,9 @@ namespace MyShedule
 
         public static string GetDayDescription(Day day)
         {
-            string message = string.Empty;
+            string message;
             switch (day)
+            // TODO: заменить Day классом(возможно)
             {
                 case Day.Monday: message = "Понедельник"; break;
                 case Day.Tuesday: message = "Вторник"; break;
@@ -257,6 +254,8 @@ namespace MyShedule
             }
             return message;
         }
+
+        #endregion
 
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace MyShedule
+﻿using System;
+
+namespace MyShedule
 {
     public class SettingShedule
     {
@@ -46,17 +48,13 @@
             }
             set
             {
-                if(0 < value && value < 5)
+                if(0 < value && value <= 4)
                 {
                     _countWeeksShedule = value;
                 }
-                else if(value < 1)
+                else 
                 {
-                    _countWeeksShedule = 1;
-                }
-                else if(value > 4)
-                {
-                    _countWeeksShedule = 4;
+                    throw new ArgumentOutOfRangeException("_countWeeksShedule", "Количество недель может быть от 1 до 4");
                 }
             }
         }
@@ -70,17 +68,13 @@
             }
             set
             {
-                if(0 < value && value < 8)
+                if(0 < value && value <= 7)
                 {
                     _countDaysEducationWeek = value;
                 }
-                else if(value < 1)
+                else
                 {
-                    _countDaysEducationWeek = 1;
-                }
-                else if(value > 7)
-                {
-                    _countDaysEducationWeek = 7;
+                    throw new ArgumentOutOfRangeException("_countDaysEducationWeek", "Количество дней в недели должно быть от 1 до 7");
                 }
             }
         }
@@ -104,17 +98,13 @@
             }
             set
             {
-                if(0 < value && value < 9)
+                if(0 < value && value <= 8)
                 {
                     _countLessonsOfDay = value;
-                }
-                else if(value < 1)
+                } 
+                else
                 {
-                    _countLessonsOfDay = 1;
-                }
-                else if(value > 8)
-                {
-                    _countLessonsOfDay = 8;
+                    throw new ArgumentOutOfRangeException("_countLessonsOfDay", "Количество пар в день должно быть от 1 до 8");
                 }
             }
         }
@@ -128,17 +118,13 @@
             }
             set
             {
-                if(0 < value && value < 53)
+                if(0 < value && value <= 52)
                 {
                     _countEducationalWeekBySem = value;
                 }
-                else if(value < 1)
+                else
                 {
-                    _countEducationalWeekBySem = 1;
-                }
-                else if(value > 52)
-                {
-                    _countEducationalWeekBySem = 52;
+                    throw new ArgumentOutOfRangeException("_countEducationalWeekBySem", "Количество учебных недель в семестре должно быть от 1 до 52");
                 }
             }
         }
@@ -153,17 +139,13 @@
             }
             set
             {
-                if(0 < value && value < _countLessonsOfDay)
+                if(0 < value && value <= _countLessonsOfDay)
                 {
                     _maxCountLessonsOfWeekDay = value;
                 }
-                else if(value < 1)
-                {
-                    _maxCountLessonsOfWeekDay = 1;
-                }
                 else 
                 {
-                    _maxCountLessonsOfWeekDay = _countLessonsOfDay;
+                    throw new ArgumentOutOfRangeException("_maxCountLessonsOfWeekDay", "максимальное количество пар в будни должно быть от 1 до _countLessonsOfDay");
                 }
             }
         }
@@ -177,17 +159,13 @@
             }
             set
             {
-                if(0 < value && value < _countLessonsOfDay)
+                if(0 < value && value <= _countLessonsOfDay)
                 {
                     _maxCountLessonsOfWeekEnd = value;
                 }
-                else if(value < 1)
+                else
                 {
-                    _maxCountLessonsOfWeekEnd = 1;
-                }
-                else 
-                {
-                    _maxCountLessonsOfWeekEnd = _countLessonsOfDay;
+                    throw new ArgumentOutOfRangeException("_maxCountLessonsOfWeekEnd", "максимальное количество пар в выходные должно быть от 1 до _countLessonsOfDay");
                 }
             }
         }

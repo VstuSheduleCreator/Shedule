@@ -54,6 +54,8 @@
     <Compile Include="TestSheduleDay.cs" />
     <Compile Include="TestSheduleGenerator.cs" />
     <Compile Include="TestSheduleLesson.cs" />
+    <Compile Include="TestSheduleLoadItem.cs" />
+    <Compile Include="TestSheduleLoadItemsAdapter.cs" />
     <Compile Include="TestSheduleSetting.cs" />
     <Compile Include="TestSheduleTime.cs" />
     <Compile Include="TestSheduleWeeks.cs" />

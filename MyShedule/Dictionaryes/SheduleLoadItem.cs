@@ -122,6 +122,11 @@ namespace MyShedule
             }
         }
 
+        public bool NonEmpty()
+        {
+            return Teacher != "" && Discipline != "" && Groups.Count != 0;
+        }
+
         /// <summary>
         /// Перевести часы в семестре в часы расписания 
         /// </summary>

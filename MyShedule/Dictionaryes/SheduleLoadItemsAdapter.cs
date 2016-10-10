@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MyShedule
 {
@@ -19,11 +17,16 @@ namespace MyShedule
 
         public List<LoadItem> Items;
 
+        public List<LoadItem> NonEmptyItems
+        {
+            get { return (from i in Items where i.NonEmpty() select i).ToList(); }
+        }
+
         public List<string> NamesGroups
         {
             get
             {
-                return (from p in Items from g in p.Groups orderby g select g).Distinct().ToList();
+                return (from p in NonEmptyItems from g in p.Groups orderby g select g).Distinct().ToList();
             }
         }
 
@@ -31,7 +34,7 @@ namespace MyShedule
         {
             get
             {
-                return (from p in Items select p.Teacher).Distinct().ToList();
+                return (from p in NonEmptyItems select p.Teacher).Distinct().ToList();
             }
         }
 
@@ -39,7 +42,7 @@ namespace MyShedule
         {
             get
             {
-                return (from p in Items select p.Discipline).Distinct().ToList();
+                return (from p in NonEmptyItems select p.Discipline).Distinct().ToList();
             }
         }
     }

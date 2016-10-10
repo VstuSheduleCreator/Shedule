@@ -71,11 +71,6 @@ namespace TestShedule
         }
 
         [TestMethod]
-        public void TestSetHours()
-        {
-        }
-
-        [TestMethod]
         public void TestHourSmallAllowed()
         {
             loadItem = new LoadItem();
@@ -102,6 +97,16 @@ namespace TestShedule
             loadItem = getLoadItem();
             loadItem.HoursSem = 43;
             Assert.AreEqual(11, loadItem.HoursByMonth);
+        }
+
+        [TestMethod]
+        public void TestNonEmpty()
+        {
+            loadItem = new LoadItem();
+            Assert.IsFalse(loadItem.NonEmpty());
+
+            loadItem = getLoadItem();
+            Assert.IsTrue(loadItem.NonEmpty());
         }
     }
 }

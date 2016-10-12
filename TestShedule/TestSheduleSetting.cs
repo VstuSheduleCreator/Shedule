@@ -107,7 +107,7 @@ namespace TestShedule {
             setting = get_valid_setting();
             try
             {
-                setting.CountLessonsOfDay = 0;
+                setting.CountLessonsOfDay = -1;
                 Assert.Fail();
             } catch(ArgumentOutOfRangeException)
             {
@@ -118,7 +118,8 @@ namespace TestShedule {
         public void CountLessonsOfDayAllowed()
         {
             setting = get_valid_setting();
-            Assert.AreEqual(8, setting.CountLessonsOfDay);
+            setting.CountLessonsOfDay = 0;
+            Assert.AreEqual(0, setting.CountLessonsOfDay);
         }
 
         [TestMethod]
@@ -160,8 +161,8 @@ namespace TestShedule {
         {
             setting = get_valid_setting();
             setting.CountLessonsOfDay = 5;
-            setting.MaxCountLessonsOfWeekDay = 5;
-            Assert.AreEqual(5, setting.MaxCountLessonsOfWeekDay);
+            setting.MaxCountLessonsOfWeekDay = 0;
+            Assert.AreEqual(0, setting.MaxCountLessonsOfWeekDay);
         }
 
         [TestMethod]
@@ -185,7 +186,7 @@ namespace TestShedule {
             setting = get_valid_setting();
             try
             {
-                setting.MaxCountLessonsOfWeekDay = 0;
+                setting.MaxCountLessonsOfWeekDay = -1;
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException)
@@ -198,8 +199,8 @@ namespace TestShedule {
         {
             setting = get_valid_setting();
             setting.CountLessonsOfDay = 5;
-            setting.MaxCountLessonsOfWeekEnd = 5;
-            Assert.AreEqual(5, setting.MaxCountLessonsOfWeekEnd);
+            setting.MaxCountLessonsOfWeekEnd = 0;
+            Assert.AreEqual(0, setting.MaxCountLessonsOfWeekEnd);
         }
 
         [TestMethod]
@@ -223,7 +224,7 @@ namespace TestShedule {
             setting = get_valid_setting();
             try
             {
-                setting.MaxCountLessonsOfWeekEnd = 0;
+                setting.MaxCountLessonsOfWeekEnd = -1;
                 Assert.Fail();
             } catch(ArgumentOutOfRangeException)
             {

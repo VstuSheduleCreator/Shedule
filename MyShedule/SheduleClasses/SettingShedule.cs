@@ -98,7 +98,7 @@ namespace MyShedule
             }
             set
             {
-                if(0 < value && value <= 8)
+                if(0 <= value && value <= 8)
                 {
                     _countLessonsOfDay = value;
                 } 
@@ -139,7 +139,7 @@ namespace MyShedule
             }
             set
             {
-                if(0 < value && value <= _countLessonsOfDay)
+                if(0 <= value && value <= _countLessonsOfDay)
                 {
                     _maxCountLessonsOfWeekDay = value;
                 }
@@ -159,7 +159,7 @@ namespace MyShedule
             }
             set
             {
-                if(0 < value && value <= _countLessonsOfDay)
+                if(0 <= value && value <= _countLessonsOfDay)
                 {
                     _maxCountLessonsOfWeekEnd = value;
                 }

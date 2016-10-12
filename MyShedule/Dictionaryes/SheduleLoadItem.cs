@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace MyShedule
 {
     /// <summary>
-    /// Кузьмин Д.С. 16/04/2011
     /// Класс нагрузка для одной группы по одной дисциплине
     /// </summary>
     [Serializable]
@@ -29,6 +26,12 @@ namespace MyShedule
                 return binaryFormatter.Deserialize(memStream); 
             } 
         }
+
+        public LoadItem Copy()
+        {
+            return new LoadItem(Teacher, Discipline, Groups, HoursSem, LessonType);
+        }
+
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -58,38 +61,11 @@ namespace MyShedule
             LessonType = type;
         }
 
-        /// <summary>
-        /// Конструктор с идентификаторами
-        /// </summary>
-        public LoadItem(string teacher, 
-                        string discipline, 
-                        List<string> groups, 
-                        decimal hours,
-                        LessonType type, 
-                        int teacherId, 
-                        int disciplId, 
-                        int groupId)
-        {
-            Teacher = teacher;
-            Discipline = discipline;
-            Groups = groups;
-            HoursSem = hours;
-            LessonType = type;
-            TeacherId = teacherId;
-            DisciplineId = disciplId;
-            GroupId = groupId;
-        }
-
-        public LoadItem Copy()
-        {
-            return new LoadItem(Teacher, Discipline, Groups, HoursSem, LessonType);
-        }
 
         /// <summary>
-        /// Идентификатор
-        /// На 07.05.11 не используется
+        /// Часы за семестр
         /// </summary>
-        public int Id { get; set; }
+        private decimal _hours;
 
         /// <summary>
         /// Тип занятия
@@ -111,6 +87,12 @@ namespace MyShedule
         /// </summary>
         public List<string> Groups { get; set; }
 
+        public decimal DivideHours
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Количество часов дисциплины за семестр
         /// </summary>
@@ -122,7 +104,10 @@ namespace MyShedule
             }
             set
             {
-                _hours = (value >= 0) ? value : 0;
+                if(value > 0)
+                    _hours = value;
+                else
+                    throw new ArgumentOutOfRangeException("_hours", "Количество часов должно быть больше нуля");
             }
         }
 
@@ -137,6 +122,11 @@ namespace MyShedule
             }
         }
 
+        public bool NonEmpty()
+        {
+            return Teacher != "" && Discipline != "" && Groups.Count != 0;
+        }
+
         /// <summary>
         /// Перевести часы в семестре в часы расписания 
         /// </summary>
@@ -145,37 +135,8 @@ namespace MyShedule
         private int ConvertHoursSemToMouth(decimal HoursSem)
         {
             SettingsAplication stg = new SettingsAplication();
-            return (int)HoursSem / 4;
+            return (int)Math.Ceiling(HoursSem / 4);
         }
 
-
-        public decimal DivideHours
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Часы за семестр
-        /// </summary>
-        private decimal _hours;
-
-        /// <summary>
-        /// Индентификатор преподователя
-        /// На 07.05.11 не используется
-        /// </summary>
-        public int TeacherId { get; set; }
-
-        /// <summary>
-        /// Идентификатор дисциплины
-        /// На 07.05.11 не используется
-        /// </summary>
-        public int DisciplineId { get; set; }
-
-        /// <summary>
-        /// Идентификатор группы
-        /// На 07.05.11 не используется
-        /// </summary>
-        public int GroupId { get; set; }
     }
 }

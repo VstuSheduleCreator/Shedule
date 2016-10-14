@@ -325,7 +325,7 @@ namespace MyShedule
             //выбираем аудиторию, ищем пока не найдется подходящая не занятая
             foreach (SheduleRoom room in rooms) {
                 //можно ли в этой аудитории проводить данный вид занятия
-                if (!PossibleAppointLessonRoom(room, item.LessonType))
+                if (!room.CanHoldLesson(item.LessonType))
                     continue; // если нельзя то переходим к следующей аудитории
                 //проверяем накладки по аудитоиям, группам и преподам
                 if (Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
@@ -342,13 +342,6 @@ namespace MyShedule
             (type == LessonType.Labwork && room.DisciplinesLabWork.Where(disc => disc == discipline).Count() > 0) ||
             (type == LessonType.Practice && room.DisciplinesPractice.Where(disc => disc == discipline).Count() > 0));
         }
-
-        //Можно ли проводить данный вид занятия в этой аудитории
-        private bool PossibleAppointLessonRoom(SheduleRoom room, LessonType type){
-            return type == LessonType.Lection ? room.Lection : type == LessonType.Labwork ? 
-                room.LabWork : type == LessonType.Practice ? room.Practice : true;
-        }
-
     }
 
     public class DistributeResult

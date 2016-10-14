@@ -324,12 +324,8 @@ namespace MyShedule
             List<SheduleRoom> rooms = (query.Count > 0) ? query : Rooms; 
             //выбираем аудиторию, ищем пока не найдется подходящая не занятая
             foreach (SheduleRoom room in rooms) {
-                //можно ли в этой аудитории проводить данный вид занятия
-                if (!room.CanHoldLesson(item.LessonType))
-                    continue; // если нельзя то переходим к следующей аудитории
-                //проверяем накладки по аудитоиям, группам и преподам
-                if (Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
-                    return room; //больше не ищем аудиторию
+                if (room.CanHoldLesson(item.LessonType) && Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
+                    return room;
             }
             return null;
         }

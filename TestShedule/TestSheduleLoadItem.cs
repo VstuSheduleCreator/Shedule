@@ -108,5 +108,20 @@ namespace TestShedule
             loadItem = getLoadItem();
             Assert.IsTrue(loadItem.NonEmpty());
         }
+
+        [TestMethod]
+        public void TestInfoEmptyItem()
+        {
+            loadItem = new LoadItem();
+            Assert.AreEqual("Незаполненный элемент нагрузки", loadItem.Info);
+        }
+
+
+        [TestMethod]
+        public void TestInfo()
+        {
+            loadItem = getLoadItem();
+            Assert.AreEqual("Коптелова И.П., Теория принятия решений, ИВТ - 461/ИВТ - 462/ИВТ - 463", loadItem.Info);
+        }
     }
 }

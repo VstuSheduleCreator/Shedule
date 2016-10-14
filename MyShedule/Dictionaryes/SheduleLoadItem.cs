@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -119,6 +120,24 @@ namespace MyShedule
             get
             {
                 return ConvertHoursSemToMouth(_hours);
+            }
+        }
+
+        public string Info
+        {
+            get
+            {
+                if (this.NonEmpty())
+                {
+                    string groups = String.Empty;
+                    foreach (string group in Groups)
+                        groups += Groups.Last() == group ? group : group + "/";
+                    return String.Format("{0}, {1}, {2}", Teacher, Discipline, groups);
+                }
+                else
+                {
+                    return "Незаполненный элемент нагрузки";
+                }
             }
         }
 

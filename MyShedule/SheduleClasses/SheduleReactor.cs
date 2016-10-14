@@ -165,17 +165,9 @@ namespace MyShedule
 
         protected virtual void SaveResultDistribute(decimal load, LoadItem item)
         {
-            DistributeResult result = (load > 0) ? new DistributeResult(false, GetItemInfo(item), "Не известно") :
-                    new DistributeResult(true, GetItemInfo(item), String.Empty);
+            DistributeResult result = (load > 0) ? new DistributeResult(false, item.Info, "Не известно") :
+                    new DistributeResult(true, item.Info, String.Empty);
             Results.Add(result);
-        }
-
-        protected virtual string GetItemInfo(LoadItem item)
-        {
-            string groups = String.Empty;
-            foreach(string group in item.Groups)
-                groups += item.Groups.Last() == group ? group : group + "/";
-            return String.Format("{0}, {1}, {2}", item.Teacher, item.Discipline, groups);
         }
 
         protected decimal GoToHoursShedule(LoadItem item, decimal load, SheduleDay dayShedule, int attempt)

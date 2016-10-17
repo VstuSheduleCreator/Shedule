@@ -113,7 +113,7 @@ namespace MyShedule
             int Wednesday = 3;
             int Saturday = 6;
             //в первую очередь проставляем занятия в субботу
-            days.Add(Saturday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 6) days.Add(Saturday);
             //во вторую очередь проставляем в понедельник
             days.Add(Monday);
 
@@ -122,7 +122,7 @@ namespace MyShedule
                     days.Add(day);
 
             //в последнюю очередь проставляем в среду. пусть студенты отдохнут посреди недели
-            days.Add(Wednesday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 3) days.Add(Wednesday);
 
             return days;
         }

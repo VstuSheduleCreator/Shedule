@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
-namespace MyShedule
+﻿namespace MyShedule
 {
     /// <summary>
     /// Перечесление неделя в расписании 
@@ -16,9 +7,9 @@ namespace MyShedule
     {
         Another = 0,
         FirstWeek = 1,
-        SecondWeek,
-        TreeWeek,
-        FourWeek
+        SecondWeek = 2,
+        TreeWeek = 3,
+        FourWeek = 4
     }
 
     /// <summary>
@@ -36,6 +27,9 @@ namespace MyShedule
         Sunday = 7
     }
 
+    /// <summary>
+    /// Перечесление Форма обучения
+    /// </summary>
     public enum TypeShedule
     {
         //Вечерники
@@ -43,5 +37,4 @@ namespace MyShedule
         //Заочники
         Correspondence
     }
-
 }

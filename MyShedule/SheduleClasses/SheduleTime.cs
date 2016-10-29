@@ -26,42 +26,18 @@ namespace MyShedule
 
         #region Fields SheduleTime
 
-        private Week _week;
+        public Week Week;
 
-        private Day _day;
+        public Day Day;
 
         private int _hour;
 
-        public Week Week
-        {
-            get
-            {
-                return _week;
-            }
-            set
-            {
-                _week = value;
-            }
-
-        }
 
         public int WeekNumber
         {
             get
             {
-                return (int)_week;
-            }
-        }
-
-        public Day Day
-        {
-            get
-            {
-                return _day;
-            }
-            set
-            {
-                _day = value;
+                return (int)Week;
             }
         }
 
@@ -69,7 +45,7 @@ namespace MyShedule
         {
             get
             {
-                return (int)_day;
+                return (int)Day;
             }
         }
 
@@ -83,12 +59,11 @@ namespace MyShedule
             set
             {
                 // В день не может быть больше 8-ми пар
-                // Возможно нужно будет поменять на 0 < value
-                // Сейчас hour == 0 обозначает неизвестный час
+                // hour == 0 обозначает неизвестный час
                 if (0 <= value && value < 9)
                     _hour = value;
                 else
-                    throw new ArgumentOutOfRangeException("_Hour", "В день не может быть больше 8-ми пар");
+                    throw new ArgumentOutOfRangeException("_hour", "В день не может быть больше 8-ми пар");
             }
         }
 
@@ -105,12 +80,6 @@ namespace MyShedule
                 return false;
             return Equals((SheduleTime)obj); 
         }
-
-        // TODO: разобраться зачем нужен этот метод(скорее всего он и не нужен)
-        //public override int GetHashCode()
-        //{
-        //    return WeekNumber*DayNumber*Hour;
-        //}
 
         public bool Equals(SheduleTime other) 
         {
@@ -175,7 +144,7 @@ namespace MyShedule
         {
             get
             {
-                return GetWeekDescription(_week);
+                return GetWeekDescription(Week);
             }
         }
 
@@ -183,7 +152,7 @@ namespace MyShedule
         {
             get
             {
-                return GetDayDescription(_day);
+                return GetDayDescription(Day);
             }
         }
 
@@ -207,7 +176,6 @@ namespace MyShedule
         public static string GetWeekDescription(Week week)
         {
             string message;
-            // TODO: заменить switch функцией(возможно)
             switch (week)
             {
                 case Week.FirstWeek: message = "Неделя I"; break;
@@ -222,7 +190,6 @@ namespace MyShedule
         // Вернуть текстовое описания номера занятия
         public static string GetHourDiscription(int hour)
         {
-            // TODO: заменить switch функцией(возможно)
             switch(hour)
             {
                 case 1: return "1-2";
@@ -241,7 +208,6 @@ namespace MyShedule
         {
             string message;
             switch (day)
-            // TODO: заменить Day классом(возможно)
             {
                 case Day.Monday: message = "Понедельник"; break;
                 case Day.Tuesday: message = "Вторник"; break;

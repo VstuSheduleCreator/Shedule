@@ -48,61 +48,13 @@ namespace MyShedule
 
         #endregion
 
-        //получить элменты нагрузки для составления расписания
-        public virtual IEnumerable<LoadItem> LoadItemsDivided { get { return GetLoadItemsDivided(); } }
-
-        protected virtual IEnumerable<LoadItem> GetLoadItemsDivided()
+        // элементы нагрузки для составления расписания
+        public virtual IEnumerable<LoadItem> LoadItemsDivided
         {
-            IEnumerable<LoadItem> divided = DivideLoadOnSubItems(LoadItemsAdapter.Items);
-            return SortLoadItemsOnRegularIntervals(divided.ToList());
-        }
-
-        //разделить элементы нагрузки на подэлементы с количеством часов не больше 8
-        // 8 часов = 2 недели (1-я и 3-я или 2-я и 4-я) * 2 пары сдвоенные * 2 часа одна пара
-        protected virtual IEnumerable<LoadItem> DivideLoadOnSubItems(IEnumerable<LoadItem> loadItems)
-        {
-            foreach (LoadItem item in loadItems.OrderByDescending(x => x.HoursByMonth).ToList())
+            get
             {
-                decimal loadCounter = item.HoursByMonth;
-
-                while (loadCounter > 0)
-                {
-                    LoadItem subitem = item.Copy();
-                    subitem.DivideHours = loadCounter - Step > 0 ? Step : loadCounter;
-                    loadCounter = loadCounter - Step > 0 ? loadCounter - Step : 0;
-
-                    yield return subitem;
-                }
+                return LoadItemsAdapter.DivideLoadOnSubItems(Step).SortLoadItemsOnRegularIntervals();
             }
-        }
-
-        //упорядочить элементы нагрузки таким образом чтобы дисциплины распределялись равномерно по неделям
-        protected virtual IEnumerable<LoadItem> SortLoadItemsOnRegularIntervals(IEnumerable<LoadItem> loadItems)
-        {
-            List<LoadItem> items = loadItems.ToList();
-            Array disciplines = items.OrderByDescending(x => x.HoursByMonth).Select(x => x.Discipline).Distinct().ToArray();
-
-            while (items.Count > 0)
-            {
-                foreach (string discipline in disciplines)
-                {
-                    List<LoadItem> query = items.Where(x => x.Discipline == discipline).ToList();
-                    if (query.Count > 0)
-                    {
-                        items.Remove(query.First());
-                        yield return query.First();
-                    }
-                }
-            }
-        }
-
-        //отсортировать недели по наименьшей загруженности
-        // TODO: возможно превратить в гетер
-        private IEnumerable<WeekInfo> GetSortedWeeksByCountLessons(SheduleWeeks shedule)
-        {
-            return (from day in shedule.Days
-                    group day by day.Week into grp
-                    select new WeekInfo(grp.Key, grp.Sum(d => d.CountLessons))).OrderBy(day => day.CountLessons);
         }
 
         protected virtual IEnumerable<int> GetSortedDays()
@@ -113,7 +65,7 @@ namespace MyShedule
             int Wednesday = 3;
             int Saturday = 6;
             //в первую очередь проставляем занятия в субботу
-            days.Add(Saturday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 6) days.Add(Saturday);
             //во вторую очередь проставляем в понедельник
             days.Add(Monday);
 
@@ -122,7 +74,7 @@ namespace MyShedule
                     days.Add(day);
 
             //в последнюю очередь проставляем в среду. пусть студенты отдохнут посреди недели
-            days.Add(Wednesday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 3) days.Add(Wednesday);
 
             return days;
         }
@@ -165,17 +117,9 @@ namespace MyShedule
 
         protected virtual void SaveResultDistribute(decimal load, LoadItem item)
         {
-            DistributeResult result = (load > 0) ? new DistributeResult(false, GetItemInfo(item), "Не известно") :
-                    new DistributeResult(true, GetItemInfo(item), String.Empty);
+            DistributeResult result = (load > 0) ? new DistributeResult(false, item.Info, "Не известно") :
+                    new DistributeResult(true, item.Info, String.Empty);
             Results.Add(result);
-        }
-
-        protected virtual string GetItemInfo(LoadItem item)
-        {
-            string groups = String.Empty;
-            foreach(string group in item.Groups)
-                groups += item.Groups.Last() == group ? group : group + "/";
-            return String.Format("{0}, {1}, {2}", item.Teacher, item.Discipline, groups);
         }
 
         protected decimal GoToHoursShedule(LoadItem item, decimal load, SheduleDay dayShedule, int attempt)
@@ -332,12 +276,8 @@ namespace MyShedule
             List<SheduleRoom> rooms = (query.Count > 0) ? query : Rooms; 
             //выбираем аудиторию, ищем пока не найдется подходящая не занятая
             foreach (SheduleRoom room in rooms) {
-                //можно ли в этой аудитории проводить данный вид занятия
-                if (!PossibleAppointLessonRoom(room, item.LessonType))
-                    continue; // если нельзя то переходим к следующей аудитории
-                //проверяем накладки по аудитоиям, группам и преподам
-                if (Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
-                    return room; //больше не ищем аудиторию
+                if (room.CanHoldLesson(item.LessonType) && Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
+                    return room;
             }
             return null;
         }
@@ -350,13 +290,6 @@ namespace MyShedule
             (type == LessonType.Labwork && room.DisciplinesLabWork.Where(disc => disc == discipline).Count() > 0) ||
             (type == LessonType.Practice && room.DisciplinesPractice.Where(disc => disc == discipline).Count() > 0));
         }
-
-        //Можно ли проводить данный вид занятия в этой аудитории
-        private bool PossibleAppointLessonRoom(SheduleRoom room, LessonType type){
-            return type == LessonType.Lection ? room.Lection : type == LessonType.Labwork ? 
-                room.LabWork : type == LessonType.Practice ? room.Practice : true;
-        }
-
     }
 
     public class DistributeResult

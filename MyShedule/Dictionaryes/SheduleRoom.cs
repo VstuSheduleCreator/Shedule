@@ -42,5 +42,24 @@ namespace MyShedule
         public List<string> DisciplinesLabWork { get; set; }
         public bool Practice { get; set; }
         public List<string> DisciplinesPractice { get; set; }
+
+        public List<LessonType> PossibleLessonsTypes
+        {
+            get
+            {
+                List<LessonType> possibleLessonsTypes = new List<LessonType>();
+
+                if (Lection) possibleLessonsTypes.Add(LessonType.Lection);
+                if (Practice)possibleLessonsTypes.Add(LessonType.Practice);
+                if (LabWork)possibleLessonsTypes.Add(LessonType.Labwork);
+
+                return possibleLessonsTypes;
+            }
+        }
+
+        public bool CanHoldLesson(LessonType type)
+        {
+            return PossibleLessonsTypes.Contains(type);
+        }
     }
 }

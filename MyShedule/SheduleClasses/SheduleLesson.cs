@@ -19,7 +19,7 @@ namespace MyShedule
 
         public object Clone() 
         { 
-            return CloneObject(this) as object; 
+            return CloneObject(this); 
         }
 
         public static object CloneObject(object obj) 
@@ -37,36 +37,30 @@ namespace MyShedule
 
         #region Constructors SheduleLesson
 
-        //пустой конструктор для сериализации
+        // пустой конструктор для сериализации
         public SheduleLesson()
         { }
 
-        public SheduleLesson(SheduleTime time, string room, IEnumerable<DateTime> dates)
+        public SheduleLesson(SheduleTime time, string room, List<DateTime> dates)
         {
-            //main atributtes
             Teacher = String.Empty;
             Discipline = String.Empty;
             Groups = new List<string>();
             Room = room;
             Type = LessonType.Lection;
-            //set dates
             Dates = dates.ToList();
-            //set times
             Time = time;
         }
 
-        public SheduleLesson(SheduleTime time, string room, IEnumerable<DateTime> dates, 
-            string teacher, string discipline, IEnumerable<string> groups, LessonType type)
+        public SheduleLesson(SheduleTime time, string room, List<DateTime> dates, 
+            string teacher, string discipline, List<string> groups, LessonType type)
         {
-            //main atributtes
             Teacher = teacher;
             Discipline = discipline;
-            Groups = groups.ToList();
+            Groups = groups;
             Room = room;
             Type = type;
-            //set dates
-            Dates = dates.ToList();
-            //set times
+            Dates = dates;
             Time = time;
         }
 
@@ -94,9 +88,6 @@ namespace MyShedule
         /// <summary> Тип занятия перечисление</summary>
         public LessonType Type { get; set; }
 
-        /// <summary> Тип занятия цифровой код </summary>
-        public int TypeCode { get { return (int)Type; } }
-
         /// <summary> Аудитория </summary>
         public string Room { get; set; }
 
@@ -121,33 +112,25 @@ namespace MyShedule
         public void Clear()
         {
             Teacher = String.Empty;
-
             Discipline = String.Empty;
-
-            // TODO: сделать приватным и запретить создавать одинковые группы
             Groups = new List<string>();
-
             Type = LessonType.Lection;
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type)
+        public void UpdateFields(string teacher, string discipline, List<string> groups, LessonType type)
         {
             Teacher = teacher;
-
             Discipline = discipline;
-
-            Groups = groups.ToList();
-
+            Groups = groups;
             Type = type;
         }
 
         /// <summary> Переназначить занятие </summary>
-        public void UpdateFields(string teacher, string discipline, IEnumerable<string> groups, LessonType type, IEnumerable<DateTime> dates)
+        public void UpdateFields(string teacher, string discipline, List<string> groups, LessonType type, List<DateTime> dates)
         {
-            Dates = dates.ToList();
-
-            UpdateFields(teacher, discipline, groups.ToList(), type);
+            Dates = dates;
+            UpdateFields(teacher, discipline, groups, type);
         }
 
         public bool IsEqual(SheduleLesson item)
@@ -164,7 +147,6 @@ namespace MyShedule
                 string value = String.Empty;
                 foreach (string group in Groups)
                     value += Groups.Last() == group ? group : group + ", ";
-
                 return value;
             }
         }
@@ -178,10 +160,8 @@ namespace MyShedule
                 foreach (DateTime dt in Dates)
                 {
                     datesLine += String.Format("{0:dd}.{0:MM}", dt);
-                    // TODO: скорее здесль лучше использовать обычный if
                     datesLine += Dates.Last() != dt ? ", " : "";
                 }
-
                 return datesLine;
             }
         }

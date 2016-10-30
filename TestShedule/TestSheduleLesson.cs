@@ -8,7 +8,7 @@ namespace TestShedule
     [TestClass]
     public class TestSheduleLesson
     {
-        private SheduleLesson lesson = new SheduleLesson();
+        private SheduleLesson lesson;
 
         private SheduleLesson getSheduleLesson()
         {
@@ -40,8 +40,54 @@ namespace TestShedule
         }
 
         [TestMethod]
+        public void TestEmptyConstructor()
+        {
+            lesson = new SheduleLesson();
+
+            Assert.IsTrue(lesson.IsEmpty);
+            Assert.AreEqual(LessonType.Lection, lesson.Type);
+            Assert.IsNull(lesson.Time);
+            Assert.IsNull(lesson.Dates);
+        }
+
+        [TestMethod]
+        public void TestCinstructorWith3Params()
+        {
+            SheduleTime time = new SheduleTime(Week.FirstWeek, Day.Monday, 1);
+            List<DateTime> dates = new List<DateTime> { new DateTime(2016, 9, 6), new DateTime(2016, 9, 20) };
+            lesson = new SheduleLesson(time, "В-404", dates);
+
+            Assert.AreEqual(String.Empty, lesson.Teacher);
+            Assert.AreEqual(String.Empty, lesson.Discipline);
+            Assert.AreEqual(0, lesson.Groups.Count);
+            Assert.AreEqual(LessonType.Lection, lesson.Type);
+            Assert.AreEqual(time, lesson.Time);
+            Assert.AreEqual("В-404", lesson.Room);
+            CollectionAssert.AreEqual(dates, lesson.Dates);
+        }
+
+        [TestMethod]
+        public void TestConstructorWithAllParams()
+        {
+            lesson = getSheduleLesson();
+
+            Assert.IsFalse(lesson.IsEmpty);
+            Assert.AreEqual(LessonType.Lection, lesson.Type);
+            Assert.AreEqual(new SheduleTime(Week.FirstWeek, Day.Monday, 1), lesson.Time);
+            CollectionAssert.AreEqual(new List<string> { "ИВТ-260", "ИВТ-261" }, lesson.Groups);
+        }
+
+        [TestMethod]
         public void TestIsEmpty() {
-            Assert.AreEqual(lesson.IsEmpty, true);
+            lesson = new SheduleLesson();
+            Assert.IsTrue(lesson.IsEmpty);
+        }
+
+        [TestMethod]
+        public void TestIsNotEmpty()
+        {
+            lesson = getSheduleLesson();
+            Assert.IsFalse(lesson.IsEmpty);
         }
 
         [TestMethod]
@@ -50,10 +96,10 @@ namespace TestShedule
             lesson = getSheduleLesson();
             lesson.Clear();
 
-            Assert.AreEqual(lesson.Teacher, String.Empty);
-            Assert.AreEqual(lesson.Discipline, String.Empty);
-            Assert.AreEqual(lesson.Groups.Count, 0);
-            Assert.AreEqual(lesson.Type, LessonType.Lection);
+            Assert.AreEqual(String.Empty, lesson.Teacher);
+            Assert.AreEqual(String.Empty, lesson.Discipline);
+            Assert.AreEqual(0, lesson.Groups.Count);
+            Assert.AreEqual(LessonType.Lection, lesson.Type);
         }
 
         [TestMethod]
@@ -101,14 +147,6 @@ namespace TestShedule
 
             Assert.AreEqual(lesson.GroupsDescription, "ИВТ-260, ИВТ-261");
         }
-
-        //[TestMethod]
-        //public void TestFewSimilarGroupsDescription() {
-        //    lesson = getSheduleLesson();
-        //    lesson.Groups = new List<string> { "ИВТ-260", "ИВТ-260" };
-
-        //    Assert.AreEqual(lesson.GroupsDescription, "ИВТ-260, ИВТ-260");
-        //}
 
         [TestMethod]
         public void TestDatesDiscription()

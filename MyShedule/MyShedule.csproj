@@ -188,7 +188,7 @@
     <EmbeddedResource Include="ChildForm\SheduleSettingForm.resx">
       <DependentUpon>SheduleSettingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
+    <None Include="SheduleClasses\app.config" />
     <EmbeddedResource Include="ChildForm\EdicationLoadForm.resx">
       <DependentUpon>EdicationLoadForm.cs</DependentUpon>
     </EmbeddedResource>

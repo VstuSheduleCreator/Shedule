@@ -19,7 +19,7 @@ namespace MyShedule
             _firstDaySem = new DateTime();
             _rooms = new List<SheduleRoom>();
             _setting = new SettingShedule();
-            Employments = new Employments();
+            _employments = new Employments();
         }
 
         public SheduleWeeks(List<SheduleRoom> rooms, SettingShedule setting, DateTime firstDaySem)
@@ -80,7 +80,7 @@ namespace MyShedule
             // Понедельник первой недели семестра
             DateTime dateCounter = FirstDaySem.AddDays(-(int)FirstDaySem.DayOfWeek+1);
 
-            for (int week = 1; week <= Setting.CountWeeksShedule; week++)
+            for (int week = 1; week <= 4; week++)
             {
                 for (int day = 1; day <= Setting.CountDaysEducationWeek; day++) 
                 {
@@ -144,7 +144,61 @@ namespace MyShedule
         }
 
         public IEnumerable<SheduleLesson> GetLessonsOfDay(SheduleDay day)     { return GetLessonsOfDay(day.Week, day.Day); }
-        
+
+        //отсортировать недели по наименьшей загруженности
+        public IEnumerable<WeekInfo> GetSortedWeeksByCountLessons()
+        {
+            return (from day in Days
+                    group day by day.Week into grp
+                    select new WeekInfo(grp.Key, grp.Sum(d => d.CountLessons))).OrderBy(day => day.CountLessons);
+        }
+
+        //Получить аудитории привязанные к определенному предмету по определенному типу занятия
+        private IEnumerable<SheduleRoom> GetRoomsBindingDiscipline(LessonType type, string discipline)
+        {
+            return Rooms.Select(room => room).Where(room =>
+            (type == LessonType.Lection && room.DisciplinesLection.Where(disc => disc == discipline).Count() > 0) ||
+            (type == LessonType.Labwork && room.DisciplinesLabWork.Where(disc => disc == discipline).Count() > 0) ||
+            (type == LessonType.Practice && room.DisciplinesPractice.Where(disc => disc == discipline).Count() > 0));
+        }
+
+        public SheduleRoom FindRoom(LoadItem item, SheduleTime time)
+        {
+            //проверяем не привязан ли этот предмет к определенной аудитории
+            var query = GetRoomsBindingDiscipline(item.LessonType, item.Discipline).ToList();
+            //если предмет не привязан то ищем по всем аудиториям, если же привязан то только по отобранным
+            List<SheduleRoom> rooms = (query.Count > 0) ? query : Rooms;
+            //выбираем аудиторию, ищем пока не найдется подходящая не занятая
+            foreach(SheduleRoom room in rooms)
+            {
+                if(room.CanHoldLesson(item.LessonType) && Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
+                    return room;
+            }
+            return null;
+        }
+
+        public List<Position> FreePositions(SheduleDay dayShedule, LoadItem item)
+        {
+            List<Position> freePositions = new List<Position>();
+            //цикл по доступным часам для этого дня (в будни и выходные часы для проставления пар разные)
+            foreach(SheduleLesson lesson in dayShedule.Lessons)
+            {
+                //выбираем аудиторию
+                SheduleRoom room = FindRoom(item, lesson.Time);
+                if(room != null)
+                    freePositions.Add(new Position(room, lesson.Time));
+            }
+            return freePositions;
+        }
+
+        public bool CanPutToPosition(SheduleTime time, SheduleRoom room, LoadItem item)
+        {
+            SheduleDay day = GetDay(time.Week, time.Day);
+
+            return day != null && item.DivideHours <= day.Dates.Count &&
+                    day.LimitLessonsNotExceeded(item.Groups, time.Week, time.Day, 1) &&
+                    Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time);
+        }
 
         #region GET NAMES ELEMENTS BY VIEW
 
@@ -183,5 +237,35 @@ namespace MyShedule
         }
 
         #endregion
+    }
+
+        public struct WeekInfo
+    {
+        public WeekInfo(Week week, int countLessons)
+        {
+            Week = week;
+            CountLessons = countLessons;
+        }
+        public int WeekNumber
+        {
+            get
+            {
+                return (int)Week;
+            }
+        }
+        public Week Week;
+        public int CountLessons;
+    }
+
+    public struct Position
+    {
+        public Position(SheduleRoom room, SheduleTime time)
+        {
+            Room = room;
+            Time = time;
+        }
+
+        public SheduleRoom Room;
+        public SheduleTime Time;
     }
 }

@@ -585,5 +585,21 @@ namespace TestShedule
             }
             Assert.AreEqual(383, shedule.GetLessonsRoom("1488").Count());
         }
+
+        [TestMethod]
+        public void TestGetSortedWeeksByCountLessonsEmtyShedule()
+        {
+            shedule = new SheduleWeeks();
+
+            Assert.AreEqual(0, shedule.GetSortedWeeksByCountLessons().Count());
+        }
+
+        [TestMethod]
+        public void TestGetSortedWeeksByCountLessons()
+        {
+            shedule = getSheduleWeeks();
+
+            Assert.AreEqual(shedule.Setting.CountWeeksShedule, shedule.GetSortedWeeksByCountLessons().Count());
+        }
     }
 }

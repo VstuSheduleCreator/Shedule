@@ -6,10 +6,10 @@ namespace MyShedule
 {
     public interface ISheduleGenerator
     {
-       SheduleWeeks Generate();
+        SheduleWeeks Generate();
     }
 
-    public class SheduleGenerator : ISheduleGenerator
+    public class SheduleGenerator: ISheduleGenerator
     {
         #region Generator Fields
 
@@ -18,12 +18,6 @@ namespace MyShedule
 
         /// <summary> адаптер к учебной нагрузке</summary>
         public EducationLoadAdapter LoadItemsAdapter;
-
-        /// <summary> занятости групп, аудиторий и преподавателей </summary>
-        public Employments Employments;
-        
-        /// <summary> список аудиторий</summary>
-        public List<SheduleRoom> Rooms;
 
         /// <summary> результаты распределения нагрузки </summary>
         public List<DistributeResult> Results = new List<DistributeResult>();
@@ -35,13 +29,11 @@ namespace MyShedule
 
         #region Generator Construcrors
 
-        public SheduleGenerator(EducationLoadAdapter adapter, List<SheduleRoom> rooms, 
+        public SheduleGenerator(EducationLoadAdapter adapter, List<SheduleRoom> rooms,
             SettingShedule setting, DateTime firstDaySem, Employments employments)
         {
-            Rooms = rooms;
-            Shedule = new SheduleWeeks(Rooms, setting, firstDaySem);
-            Employments = employments;
-            Shedule.Employments = Employments;
+            Shedule = new SheduleWeeks(rooms, setting, firstDaySem);
+            Shedule.Employments = employments;
             LoadItemsAdapter = adapter;
             Shedule.Employments.ClearGeneratedLessons();
         }
@@ -60,23 +52,43 @@ namespace MyShedule
         protected virtual IEnumerable<int> GetSortedDays()
         {
             List<int> days = new List<int>();
-           
+
             int Monday = 1;
             int Wednesday = 3;
             int Saturday = 6;
             //в первую очередь проставляем занятия в субботу
-            if(Shedule.Setting.CountDaysEducationWeek >= 6) days.Add(Saturday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 6)
+                days.Add(Saturday);
             //во вторую очередь проставляем в понедельник
             days.Add(Monday);
 
-            for (int day = 1; day <= Shedule.Setting.CountDaysEducationWeek; day++)
-                if (day != Wednesday && day != Saturday && day != Monday)
+            for(int day = 1; day <= Shedule.Setting.CountDaysEducationWeek; day++)
+                if(day != Wednesday && day != Saturday && day != Monday)
                     days.Add(day);
 
             //в последнюю очередь проставляем в среду. пусть студенты отдохнут посреди недели
-            if(Shedule.Setting.CountDaysEducationWeek >= 3) days.Add(Wednesday);
+            if(Shedule.Setting.CountDaysEducationWeek >= 3)
+                days.Add(Wednesday);
 
             return days;
+        }
+
+        private IEnumerable<SheduleDay> SortedDays
+        {
+            get
+            {
+                //отсортировать недели по количеству занятий
+                WeekInfo[] sortedWeeks = Shedule.GetSortedWeeksByCountLessons().ToArray();
+                int[] sortedDays = GetSortedDays().ToArray();
+                for(int counterWeek = 0; counterWeek < sortedWeeks.Length; counterWeek++)
+                {
+                    //цикл по всем дням расписания, дни = кол-во_учебных_дней * кол-во_недель_в_расписании 
+                    for(int counterDay = 0; counterDay < sortedDays.Length; counterDay++)
+                    {
+                        yield return Shedule.GetDay(sortedWeeks[counterWeek].Week, (Day)sortedDays[counterDay]);
+                    }
+                }
+            }
         }
 
         /// <summary> Сгенерировать расписание </summary>
@@ -84,28 +96,32 @@ namespace MyShedule
         public SheduleWeeks Generate()
         {
             //убрать занятости проставленные генератором расписания
-            Employments.ClearGeneratedLessons();
+            Shedule.Employments.ClearGeneratedLessons();
+
             //распределить все элементы нагрузки
-            foreach (LoadItem item in LoadItemsDivided)
+            foreach(LoadItem item in LoadItemsDivided)
             {
                 decimal load = item.DivideHours;
                 //расписание строим с двух попыток, на первой попытке ставим сдвоенные занятия везде где возможно
-                //на второй попытке расставляем занятия в свободные ячейки как получится
-                for (int attempt = 1; attempt <= 2 && load > 0; attempt++)
+                foreach(SheduleDay day in SortedDays)
                 {
-                    //отсортировать недели по количеству занятий
-                    WeekInfo[] sortedWeeks = GetSortedWeeksByCountLessons(Shedule).ToArray();
-                    for (int counterWeek = 0; counterWeek < sortedWeeks.Length && load > 0; counterWeek++)
-                    {
-                        int[] sortedDays = GetSortedDays().ToArray();
-                        //цикл по всем дням расписания, дни = кол-во_учебных_дней * кол-во_недель_в_расписании 
-                        for (int counterDay = 0; counterDay < sortedDays.Length && load > 0; counterDay++)
-                        {
-                            SheduleDay day = Shedule.GetDay(sortedWeeks[counterWeek].Week, (Day)sortedDays[counterDay]);
-                            //обработать день в расписании
-                            load = GoToHoursShedule(item, load, day, attempt);
-                        }
-                    }
+                    List<Position> freePositions = Shedule.FreePositions(day, item);
+                    //обработать день в расписании
+                    //можно ли еще добалять пары в этот день или это день для группы заполнен
+                    if(freePositions.Count > 0 && load > 0 && day.LimitLessonsNotExceeded(item.Groups, day.Week, day.Day))
+                        //первый проход генератора
+                        load = load / Step == 1 ? PutTwoLessonOnTwoWeek(freePositions.ToList(), load, item)
+                            : PutTwoLessonOnWeek(freePositions.ToList(), load, item);
+                }
+                //на второй попытке расставляем занятия в свободные ячейки как получится
+                foreach(SheduleDay day in SortedDays)
+                {
+                    //обработать день в расписании
+                    //можно ли еще добалять пары в этот день или это день для группы заполнен
+                    List<Position> freePositions = Shedule.FreePositions(day, item);
+                    if(freePositions.Count > 0 && load > 0 && day.LimitLessonsNotExceeded(item.Groups, day.Week, day.Day))
+                        //второй проход дорасставить как получится и куда получится
+                        load = PutOneLessonOnOneOrTwoWeek(freePositions.ToList(), load, item);
                 }
                 //сохранить результат распределения элемента нагрузки
                 SaveResultDistribute(load, item);
@@ -122,36 +138,14 @@ namespace MyShedule
             Results.Add(result);
         }
 
-        protected decimal GoToHoursShedule(LoadItem item, decimal load, SheduleDay dayShedule, int attempt)
-        {
-            //можно ли еще добалять пары в этот день или это день для группы заполнен
-            if (dayShedule.LimitLessonsNotExceeded(item.Groups, dayShedule.Week, dayShedule.Day))
-            {
-                List<Position> freePositions = new List<Position>();
-                //цикл по доступным часам для этого дня (в будни и выходные часы для проставления пар разные)
-                for (int hour = dayShedule.EarlierPossibleHour; hour <= dayShedule.LastPossibleHour; hour++)
-                {
-                    SheduleTime time = new SheduleTime(dayShedule.Week, dayShedule.Day, hour);
-                    //выбираем аудиторию
-                    SheduleRoom room = FindRoom(item, time);
-                    if (room != null)
-                        freePositions.Add(new Position(room, time));
-                }
-                // добавляем занятия
-                if(freePositions.Count > 0)
-                   load = PutLessonsOnFreePositions(freePositions, load, attempt, item);
-            }
-            return load;
-        }
-
         private decimal PutTwoLessonOnTwoWeek(List<Position> freePositions, decimal load, LoadItem item)
         {
-            for (int counter = 0; counter < freePositions.Count - 1 && load > 0; counter++)
+            for(int counter = 0; counter < freePositions.Count - 1 && load > 0; counter++)
             {
                 Position curr = freePositions[counter];
                 Position next = freePositions[counter + 1];
 
-                if (curr.Time.WeekNumber > 2 || next.Time.WeekNumber > 2)
+                if(curr.Time.WeekNumber > 2 || next.Time.WeekNumber > 2)
                     continue;
 
                 SheduleTime currAfterTwoWeek = GetTimeAfterTwoWeek(curr.Time);
@@ -160,16 +154,18 @@ namespace MyShedule
                 SheduleDay currDay = Shedule.GetDay(curr.Time);
                 SheduleDay nextDay = Shedule.GetDay(currAfterTwoWeek);
 
-                if (!IsHoursNear(curr.Time, next.Time) || !currDay.LimitLessonsNotExceeded(item.Groups, currDay.Week, currDay.Day, 2) ||
+                //if(nextDay == null)
+                //    continue;
+                if(!IsHoursNear(curr.Time, next.Time) || !currDay.LimitLessonsNotExceeded(item.Groups, currDay.Week, currDay.Day, 2) ||
                     !nextDay.LimitLessonsNotExceeded(item.Groups, currAfterTwoWeek.Week, currAfterTwoWeek.Day, 2))
                     continue;
 
-                if (CanPutToPosition(curr.Time, curr.Room, item) && CanPutToPosition(next.Time, next.Room, item) &&
-                    CanPutToPosition(currAfterTwoWeek, curr.Room, item) && CanPutToPosition(nextAfterTwoWeek, next.Room, item))
+                if(Shedule.CanPutToPosition(curr.Time, curr.Room, item) && Shedule.CanPutToPosition(next.Time, next.Room, item) &&
+                    Shedule.CanPutToPosition(currAfterTwoWeek, curr.Room, item) && Shedule.CanPutToPosition(nextAfterTwoWeek, next.Room, item))
                 {
                     load = PutLesson(item, curr.Time, curr.Room, load);
-                    load = PutLesson(item, next.Time, next.Room, load);
                     load = PutLesson(item, currAfterTwoWeek, curr.Room, load);
+                    load = PutLesson(item, next.Time, next.Room, load);
                     load = PutLesson(item, nextAfterTwoWeek, next.Room, load);
                     return load;
                 }
@@ -178,25 +174,27 @@ namespace MyShedule
             return load;
         }
 
-        private bool IsHoursNear(SheduleTime time1, SheduleTime time2) {
+        private bool IsHoursNear(SheduleTime time1, SheduleTime time2)
+        {
             return IsHoursNear(time1.Hour, time2.Hour);
         }
-        private bool IsHoursNear(int hour1, int hour2) {
+        private bool IsHoursNear(int hour1, int hour2)
+        {
             return hour1 + 1 == hour2;
         }
 
         private decimal PutTwoLessonOnWeek(List<Position> adding, decimal load, LoadItem item)
         {
-            for (int counter = 0; counter < adding.Count - 1 && load > 0; counter++)
+            for(int counter = 0; counter < adding.Count - 1 && load > 0; counter++)
             {
                 Position curr = adding[counter];
                 Position next = adding[counter + 1];
 
                 SheduleDay day = Shedule.GetDay(curr.Time);
                 if(!IsHoursNear(curr.Time, next.Time) || !day.LimitLessonsNotExceeded(item.Groups, day.Week, day.Day, 2))
-                  continue;
+                    continue;
 
-                if (CanPutToPosition(curr.Time, curr.Room, item) && CanPutToPosition(next.Time, next.Room, item))
+                if(Shedule.CanPutToPosition(curr.Time, curr.Room, item) && Shedule.CanPutToPosition(next.Time, next.Room, item))
                 {
                     load = PutLesson(item, curr.Time, curr.Room, load);
                     load = PutLesson(item, next.Time, next.Room, load);
@@ -206,43 +204,19 @@ namespace MyShedule
             return load;
         }
 
-        protected virtual decimal PutLessonsOnFreePositions(IEnumerable<Position> freePositions,
-            decimal load, int attempt, LoadItem item)
-        {
-            switch (attempt)
-            {
-                //первый проход генератора 
-                case 1:
-                    return load / Step == 1 ? PutTwoLessonOnTwoWeek(freePositions.ToList(), load, item) :
-                        PutTwoLessonOnWeek(freePositions.ToList(), load, item);
-                //второй проход дорасставить как получится и куда получится
-                case 2:
-                    return PutOneLessonOnOneOrTwoWeek(freePositions.ToList(), load, item);
-                default: return load;
-            }
-        }
-
-        protected virtual bool CanPutToPosition(SheduleTime time, SheduleRoom room, LoadItem item)
-        {
-            SheduleDay day = Shedule.GetDay(time.Week, time.Day);
-
-            return  time.WeekNumber <= 4 && time.WeekNumber >= 1 && day != null &&
-                    day.LimitLessonsNotExceeded(item.Groups, time.Week, time.Day, 1) &&
-                    Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time);
-        }
 
         protected virtual decimal PutOneLessonOnOneOrTwoWeek(List<Position> freePositions, decimal load, LoadItem item)
         {
             foreach(Position position in freePositions)
             {
                 SheduleDay day = Shedule.GetDay(position.Time);
-                if (day.LimitLessonsNotExceeded(item.Groups, day.Week, day.Day, 1))
+                if(day.LimitLessonsNotExceeded(item.Groups, day.Week, day.Day, 1) && load > 0 && Shedule.CanPutToPosition(position.Time, position.Room, item))
                 {
                     load = PutLesson(item, position.Time, position.Room, load);
-                    if (load > 0 && CanPutToPosition(GetTimeAfterTwoWeek(position.Time), position.Room, item))
-                        load = PutLesson(item, GetTimeAfterTwoWeek(position.Time), position.Room, load);
+                    if(load > 0 && Shedule.CanPutToPosition(position.Time, position.Room, item))
+                        load = PutLesson(item, position.Time, position.Room, load);
                 }
-                if (load == 0)
+                if(load == 0)
                     break;
             }
             return load;
@@ -259,36 +233,13 @@ namespace MyShedule
         {
             //получить занятие из расписания
             SheduleLesson lesson = Shedule.GetLesson(time, room.Name);
+
             //задать параметры занятию
             lesson.UpdateFields(item.Teacher, item.Discipline, item.Groups, item.LessonType);
             //проставить занятости
-            Employments.Add(item.Teacher, item.Groups, room.Name, time, ReasonEmployment.GeneratorPutLesson);
+            Shedule.Employments.Add(item.Teacher, item.Groups, room.Name, time, ReasonEmployment.GeneratorPutLesson);
             //уменьшить нагрузку на два академичаских часа или на одну пару
             return load - 2;
-        }
-
-        
-        protected virtual SheduleRoom FindRoom(LoadItem item, SheduleTime time)
-        {
-            //проверяем не привязан ли этот предмет к определенной аудитории
-            var query = GetRoomsBindingDiscipline(item.LessonType, item.Discipline).ToList();
-            //если предмет не привязан то ищем по всем аудиториям, если же привязан то только по отобранным
-            List<SheduleRoom> rooms = (query.Count > 0) ? query : Rooms; 
-            //выбираем аудиторию, ищем пока не найдется подходящая не занятая
-            foreach (SheduleRoom room in rooms) {
-                if (room.CanHoldLesson(item.LessonType) && Employments.IsHourFree(item.Teacher, item.Groups, room.Name, time))
-                    return room;
-            }
-            return null;
-        }
-
-        //Получить аудитории привязанные к определенному предмету по определенному типу занятия
-        private IEnumerable<SheduleRoom> GetRoomsBindingDiscipline(LessonType type, string discipline)
-        {
-            return Rooms.Select(room => room).Where(room =>
-            (type == LessonType.Lection && room.DisciplinesLection.Where(disc => disc == discipline).Count() > 0) ||
-            (type == LessonType.Labwork && room.DisciplinesLabWork.Where(disc => disc == discipline).Count() > 0) ||
-            (type == LessonType.Practice && room.DisciplinesPractice.Where(disc => disc == discipline).Count() > 0));
         }
     }
 
@@ -304,27 +255,5 @@ namespace MyShedule
         public bool Complete;
         public string ItemInfo;
         public string Reason;
-    }
-
-    internal struct WeekInfo
-    {
-        public WeekInfo(Week week, int countLessons) {
-            Week = week; CountLessons = countLessons;
-        }
-        public int WeekNumber { get { return (int)Week; } }
-        public Week Week;
-        public int CountLessons;
-    }
-
-    public struct Position
-    {
-        public Position(SheduleRoom room, SheduleTime time)
-        {
-            Room = room;
-            Time = time;
-        }
-
-        public SheduleRoom Room;
-        public SheduleTime Time;
     }
 }
